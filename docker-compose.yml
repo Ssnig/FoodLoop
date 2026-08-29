@@ -1,0 +1,27 @@
+# Backend is an in-memory library imported by the frontend at build time.
+# The backend service runs unit tests and stays up for `docker compose exec`.
+# The frontend image copies Backend/ during `vite build` and serves the SPA on :80.
+
+services:
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: foodloop-backend
+    environment:
+      N8N_RESCUE_WEBHOOK_URL: ${N8N_RESCUE_WEBHOOK_URL:-https://kyawsanhtun.app.n8n.cloud/webhook/foodloop-rescue-created}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Frontend/Dockerfile
+      args:
+        VITE_N8N_RESCUE_WEBHOOK_URL: /api/n8n/webhook/foodloop-rescue-created
+    container_name: foodloop-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+

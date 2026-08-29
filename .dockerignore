@@ -1,0 +1,15 @@
+.git
+.cursor
+**/node_modules
+**/dist
+**/.vite
+**/.env
+**/.env.*
+*.log
+.DS_Store
+.n8n-workflow-id.txt
+README.md
+run.md
+run.cmd
+agent.md
+**/*.md
