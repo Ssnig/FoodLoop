@@ -1,0 +1,137 @@
+{
+  "name": "FoodLoop - Rescue Coordinator",
+  "nodes": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Rescue Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 300],
+      "webhookId": "foodloop-rescue-created-guid",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "foodloop-rescue-created",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "name": "Format Pickup Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 300],
+      "parameters": {
+        "jsCode": "const root = $input.first().json;\nconst body = root.body || root;\nconst plan = body.rescuePlan || {};\nconst surplus = body.surplusItem || {};\nconst rec = body.recommendation || {};\nconst urgency = rec.urgency || 'medium';\nconst donationQty = plan.donationQuantity ?? plan.quantity ?? 0;\nconst foodName = surplus.name || plan.foodName || 'surplus food';\nconst recipient = plan.recipientName || 'recipient';\nconst pickup = plan.pickupLocation || surplus.location || 'pickup location';\nconst until = plan.availableUntil || surplus.availableUntil || 'cutoff';\nconst priority = (urgency === 'critical' || urgency === 'high') ? 'urgent' : 'normal';\nconst message = `Rescue ${plan.id || 'unknown'}: ${donationQty}x ${foodName} -> ${recipient}. Pickup: ${pickup} by ${until}. Urgency: ${urgency}.`;\nreturn [{\n  json: {\n    ok: true,\n    notified: true,\n    rescueId: plan.id || null,\n    urgency,\n    priority,\n    message,\n    recipientName: recipient,\n    event: body.event || 'rescue.created',\n    channel: priority === 'urgent' ? 'coordinator-urgent' : 'coordinator-standard'\n  }\n}];"
+      }
+    },
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "name": "Is Urgent?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [780, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond1",
+              "leftValue": "={{ $json.priority }}",
+              "rightValue": "urgent",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d4e5f6a7-b8c9-0123-def0-234567890123",
+      "name": "Urgent Alert Log",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1040, 200],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            { "id": "u1", "name": "ok", "value": "={{ $json.ok }}", "type": "boolean" },
+            { "id": "u2", "name": "notified", "value": true, "type": "boolean" },
+            { "id": "u3", "name": "rescueId", "value": "={{ $json.rescueId }}", "type": "string" },
+            { "id": "u4", "name": "message", "value": "={{ $json.message }}", "type": "string" },
+            { "id": "u5", "name": "channel", "value": "coordinator-urgent", "type": "string" },
+            { "id": "u6", "name": "priority", "value": "urgent", "type": "string" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "e5f6a7b8-c9d0-1234-ef01-345678901234",
+      "name": "Standard Alert Log",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1040, 400],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            { "id": "s1", "name": "ok", "value": "={{ $json.ok }}", "type": "boolean" },
+            { "id": "s2", "name": "notified", "value": true, "type": "boolean" },
+            { "id": "s3", "name": "rescueId", "value": "={{ $json.rescueId }}", "type": "string" },
+            { "id": "s4", "name": "message", "value": "={{ $json.message }}", "type": "string" },
+            { "id": "s5", "name": "channel", "value": "coordinator-standard", "type": "string" },
+            { "id": "s6", "name": "priority", "value": "normal", "type": "string" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "f6a7b8c9-d0e1-2345-f012-456789012345",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1300, 300],
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Rescue Webhook": {
+      "main": [[{ "node": "Format Pickup Alert", "type": "main", "index": 0 }]]
+    },
+    "Format Pickup Alert": {
+      "main": [[{ "node": "Is Urgent?", "type": "main", "index": 0 }]]
+    },
+    "Is Urgent?": {
+      "main": [
+        [{ "node": "Urgent Alert Log", "type": "main", "index": 0 }],
+        [{ "node": "Standard Alert Log", "type": "main", "index": 0 }]
+      ]
+    },
+    "Urgent Alert Log": {
+      "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]]
+    },
+    "Standard Alert Log": {
+      "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

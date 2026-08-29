@@ -1,0 +1,6 @@
+.env
+.n8n-workflow-id.txt
+node_modules/
+dist/
+*.log
+.DS_Store
