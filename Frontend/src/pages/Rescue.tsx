@@ -1,12 +1,16 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import PageHeader from "@/components/dashboard/PageHeader";
 import RescueSummary from "@/components/rescue/RescueSummary";
+import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast";
 import { useFoodLoop } from "@/context/FoodLoopContext";
 import { pickupTeamLabel } from "@/lib/foodloop";
 
 export default function Rescue() {
+  const { pushToast } = useToast();
   const {
     activePlan,
     items,
@@ -15,6 +19,7 @@ export default function Rescue() {
     n8n,
     error
   } = useFoodLoop();
+  const [confirmComplete, setConfirmComplete] = useState(false);
   const teamNote = pickupTeamLabel(n8n);
 
   if (!activePlan) {
@@ -50,6 +55,16 @@ export default function Rescue() {
     return null;
   }
 
+  function handleComplete() {
+    const ok = completeActiveRescue();
+    setConfirmComplete(false);
+    if (!ok) return;
+    pushToast({
+      title: "Pickup completed",
+      description: "Impact totals have been updated for this rescue."
+    });
+  }
+
   return (
     <div className="grid gap-8">
       <PageHeader
@@ -62,7 +77,7 @@ export default function Rescue() {
         action={
           <div className="flex flex-wrap gap-2">
             {activePlan.status === "planned" ? (
-              <Button type="button" onClick={completeActiveRescue}>
+              <Button type="button" onClick={() => setConfirmComplete(true)}>
                 Mark pickup complete
               </Button>
             ) : null}
@@ -83,6 +98,15 @@ export default function Rescue() {
       ) : null}
 
       <RescueSummary plan={activePlan} item={item} recipient={recipient} />
+
+      <ConfirmDialog
+        open={confirmComplete}
+        title="Mark pickup complete?"
+        description="This records the rescue as finished and adds meals, diverted food, and recovered value to your impact totals."
+        confirmLabel="Mark complete"
+        onConfirm={handleComplete}
+        onCancel={() => setConfirmComplete(false)}
+      />
     </div>
   );
 }

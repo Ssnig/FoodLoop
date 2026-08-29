@@ -64,9 +64,9 @@ interface FoodLoopContextValue {
     discountPrice: number;
     availableUntil: string;
     location: string;
-  }) => void;
-  selectRecipient: (recipientId: string) => void;
-  completeActiveRescue: () => void;
+  }) => boolean;
+  selectRecipient: (recipientId: string) => boolean;
+  completeActiveRescue: () => boolean;
   resetDemo: () => void;
 }
 
@@ -236,7 +236,7 @@ export function FoodLoopProvider({ children }: { children: ReactNode }) {
     }) => {
       if (!business) {
         setError("You must be logged in to log surplus.");
-        return;
+        return false;
       }
       setError(null);
       try {
@@ -251,8 +251,10 @@ export function FoodLoopProvider({ children }: { children: ReactNode }) {
           businessId: business.id
         });
         setSelectedItemId(created.id);
+        return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
+        return false;
       }
     },
     [business]
@@ -260,14 +262,14 @@ export function FoodLoopProvider({ children }: { children: ReactNode }) {
 
   const selectRecipient = useCallback(
     (recipientId: string) => {
-      if (!selectedItem || !recommendation) return;
+      if (!selectedItem || !recommendation) return false;
       if (selectedItem.status !== "pending") {
         setError("This surplus item is already locked in a rescue.");
-        return;
+        return false;
       }
       if (recommendation.donationQuantity <= 0) {
         setError("Recommendation has nothing to donate — try another item.");
-        return;
+        return false;
       }
       setError(null);
       try {
@@ -278,20 +280,24 @@ export function FoodLoopProvider({ children }: { children: ReactNode }) {
         );
         toUiRescuePlan(plan);
         setRecipients(findNearbyRecipients(selectedItem.id).map(toUiRecipient));
+        return true;
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
+        return false;
       }
     },
     [recommendation, selectedItem]
   );
 
   const completeActiveRescue = useCallback(() => {
-    if (!activePlan || activePlan.status !== "planned") return;
+    if (!activePlan || activePlan.status !== "planned") return false;
     setError(null);
     try {
       completeRescue(activePlan.id);
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
+      return false;
     }
   }, [activePlan]);
 

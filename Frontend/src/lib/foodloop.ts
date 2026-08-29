@@ -124,6 +124,8 @@ export function rescueStatusLabel(status: string): string {
 export function toImpactCards(
   metrics: ReturnType<typeof getImpactMetrics> = getImpactMetrics()
 ): ImpactMetric[] {
+  const donationValue = metrics.donationValueRecovered ?? 0;
+  const discountValue = metrics.discountValueRecovered ?? 0;
   return [
     {
       label: "Meals rescued",
@@ -136,9 +138,19 @@ export function toImpactCards(
       helper: "Estimated waste diverted from landfill"
     },
     {
-      label: "Value recovered",
+      label: "Donation value",
+      value: `$${donationValue.toFixed(0)}`,
+      helper: "Retail value of portions donated to partners"
+    },
+    {
+      label: "Discount value",
+      value: `$${discountValue.toFixed(0)}`,
+      helper: "Value retained through same-day discounted sales"
+    },
+    {
+      label: "Total value recovered",
       value: `$${metrics.valueRecovered.toFixed(0)}`,
-      helper: "Combined donation and discount value retained"
+      helper: "Donation plus discount value combined"
     }
   ];
 }

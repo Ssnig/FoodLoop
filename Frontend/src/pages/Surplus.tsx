@@ -1,16 +1,31 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import PageHeader from "@/components/dashboard/PageHeader";
 import SurplusCard from "@/components/surplus/SurplusCard";
 import SurplusForm from "@/components/surplus/SurplusForm";
+import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/components/ui/toast";
 import { useFoodLoop } from "@/context/FoodLoopContext";
 import { cn } from "@/lib/utils";
 
 export default function Surplus() {
+  const { pushToast } = useToast();
   const { items, selectedItemId, selectItem, resetDemo, error, hasPendingSurplus } =
     useFoodLoop();
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  function handleReset() {
+    resetDemo();
+    setConfirmReset(false);
+    pushToast({
+      title: "Inventory reset",
+      description: "Surplus batches, rescues, and impact totals were cleared.",
+      tone: "info"
+    });
+  }
 
   return (
     <div className="grid gap-8">
@@ -19,7 +34,7 @@ export default function Surplus() {
         title="Register excess inventory before cutoff"
         description="Record prepared food, bakery, or produce with pricing. Partner matching becomes available after the first pending batch is submitted."
         action={
-          <Button type="button" variant="outline" onClick={resetDemo}>
+          <Button type="button" variant="outline" onClick={() => setConfirmReset(true)}>
             Reset inventory
           </Button>
         }
@@ -70,6 +85,15 @@ export default function Surplus() {
           ) : null}
         </div>
       </section>
+
+      <ConfirmDialog
+        open={confirmReset}
+        title="Reset inventory?"
+        description="This clears all surplus batches, rescue plans, and impact totals for the demo. Your login session stays active."
+        confirmLabel="Reset inventory"
+        onConfirm={handleReset}
+        onCancel={() => setConfirmReset(false)}
+      />
     </div>
   );
 }

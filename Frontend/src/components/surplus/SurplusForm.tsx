@@ -3,18 +3,29 @@ import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/components/ui/toast";
 import { useFoodLoop } from "@/context/FoodLoopContext";
+
+const SAMPLE = {
+  name: "Chicken Sandwiches",
+  category: "Prepared food",
+  quantity: "20",
+  unitPrice: "6",
+  discountPrice: "2.50",
+  availableUntil: "20:00"
+};
 
 export default function SurplusForm() {
   const navigate = useNavigate();
+  const { pushToast } = useToast();
   const { submitSurplus, business } = useFoodLoop();
-  const [name, setName] = useState("Chicken Sandwiches");
+  const [name, setName] = useState("");
   const [category, setCategory] = useState("Prepared food");
-  const [quantity, setQuantity] = useState(20);
-  const [unitPrice, setUnitPrice] = useState(6);
-  const [discountPrice, setDiscountPrice] = useState(2.5);
-  const [availableUntil, setAvailableUntil] = useState("20:00");
-  const [location, setLocation] = useState(business?.location || business?.name || "ABC Bakery");
+  const [quantity, setQuantity] = useState("");
+  const [unitPrice, setUnitPrice] = useState("");
+  const [discountPrice, setDiscountPrice] = useState("");
+  const [availableUntil, setAvailableUntil] = useState("");
+  const [location, setLocation] = useState(business?.location || business?.name || "");
   const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,10 +34,25 @@ export default function SurplusForm() {
     }
   }, [business?.id, business?.location, business?.name]);
 
+  function loadSample() {
+    setName(SAMPLE.name);
+    setCategory(SAMPLE.category);
+    setQuantity(SAMPLE.quantity);
+    setUnitPrice(SAMPLE.unitPrice);
+    setDiscountPrice(SAMPLE.discountPrice);
+    setAvailableUntil(SAMPLE.availableUntil);
+    setFormError(null);
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const original = Number(unitPrice);
     const sale = Number(discountPrice);
+    const portions = Number(quantity);
+    if (!(portions > 0) || !Number.isInteger(portions)) {
+      setFormError("Portions must be a positive whole number.");
+      return;
+    }
     if (!(original > 0)) {
       setFormError("Original price must be greater than zero.");
       return;
@@ -36,14 +62,19 @@ export default function SurplusForm() {
       return;
     }
     setFormError(null);
-    submitSurplus({
+    const ok = submitSurplus({
       name,
       category,
-      quantity: Number(quantity),
+      quantity: portions,
       unitPrice: original,
       discountPrice: sale,
       availableUntil,
       location
+    });
+    if (!ok) return;
+    pushToast({
+      title: "Surplus saved",
+      description: `${name} is ready for partner matching.`
     });
     navigate("/matching");
   }
@@ -51,11 +82,24 @@ export default function SurplusForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>New surplus entry</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Provide item details, original unit price, and same-day sale price. The system will
-          recommend donation and discount quantities.
-        </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <CardTitle>New surplus entry</CardTitle>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Provide item details, original unit price, and same-day sale price. The system will
+              recommend donation and discount quantities.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="shrink-0 whitespace-nowrap"
+            onClick={loadSample}
+          >
+            Load sample batch
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <form className="grid gap-4" onSubmit={handleSubmit}>
@@ -66,6 +110,7 @@ export default function SurplusForm() {
                 className="h-11 rounded-2xl border bg-background px-4 outline-none focus:ring-2 focus:ring-ring"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Chicken Sandwiches"
                 required
               />
             </label>
@@ -88,9 +133,10 @@ export default function SurplusForm() {
               <input
                 className="h-11 rounded-2xl border bg-background px-4 outline-none focus:ring-2 focus:ring-ring"
                 value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
+                onChange={(e) => setQuantity(e.target.value)}
                 type="number"
                 min={1}
+                placeholder="e.g. 20"
                 required
               />
             </label>
@@ -109,10 +155,11 @@ export default function SurplusForm() {
               <input
                 className="h-11 rounded-2xl border bg-background px-4 outline-none focus:ring-2 focus:ring-ring"
                 value={unitPrice}
-                onChange={(e) => setUnitPrice(Number(e.target.value))}
+                onChange={(e) => setUnitPrice(e.target.value)}
                 type="number"
                 min={0.01}
                 step="0.01"
+                placeholder="e.g. 6.00"
                 required
               />
             </label>
@@ -121,10 +168,11 @@ export default function SurplusForm() {
               <input
                 className="h-11 rounded-2xl border bg-background px-4 outline-none focus:ring-2 focus:ring-ring"
                 value={discountPrice}
-                onChange={(e) => setDiscountPrice(Number(e.target.value))}
+                onChange={(e) => setDiscountPrice(e.target.value)}
                 type="number"
                 min={0}
                 step="0.01"
+                placeholder="e.g. 2.50"
                 required
               />
             </label>

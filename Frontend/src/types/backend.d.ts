@@ -126,6 +126,8 @@ declare module "@backend/services/index.js" {
   export interface ImpactMetrics {
     mealsRescued: number;
     foodDivertedKg: number;
+    donationValueRecovered: number;
+    discountValueRecovered: number;
     valueRecovered: number;
   }
 

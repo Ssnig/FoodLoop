@@ -1,4 +1,4 @@
-import { ArrowRight, Clock3, Scale, Utensils, WalletCards } from "lucide-react";
+import { ArrowRight, Clock3, Gift, Percent, Scale, Utensils, WalletCards } from "lucide-react";
 import { Link } from "react-router-dom";
 import MetricCard from "@/components/dashboard/MetricCard";
 import PageHeader from "@/components/dashboard/PageHeader";
@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useFoodLoop } from "@/context/FoodLoopContext";
 import { pickupTeamLabel } from "@/lib/foodloop";
 
-const metricIcons = [Utensils, Scale, WalletCards];
+const metricIcons = [Utensils, Scale, Gift, Percent, WalletCards];
 
 export default function Dashboard() {
   const {
@@ -76,9 +76,13 @@ export default function Dashboard() {
 
       {teamNote ? <p className="text-sm text-muted-foreground">{teamNote}</p> : null}
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {impact.map((metric, index) => (
-          <MetricCard key={metric.label} icon={metricIcons[index]} {...metric} />
+          <MetricCard
+            key={metric.label}
+            icon={metricIcons[index] ?? WalletCards}
+            {...metric}
+          />
         ))}
       </section>
 
