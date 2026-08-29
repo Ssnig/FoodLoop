@@ -12,13 +12,10 @@ import Rescue from "@/pages/Rescue";
 import Signup from "@/pages/Signup";
 import Surplus from "@/pages/Surplus";
 
-/**
- * App shell — Backend services + WebMCP are wired through FoodLoopProvider.
- * Matching is gated until the owner logs pending surplus.
- */
+/** App shell. Partner matching remains unavailable until pending surplus is registered. */
 export default function App() {
   useEffect(() => {
-    document.title = "FoodLoop — Surplus Rescue";
+    document.title = "FoodLoop — Surplus Recovery";
   }, []);
 
   return (

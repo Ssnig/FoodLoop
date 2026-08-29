@@ -8,7 +8,7 @@ export default function RequireAuth() {
   if (!authReady) {
     return (
       <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
-        Loading session…
+        Loading workspace…
       </div>
     );
   }

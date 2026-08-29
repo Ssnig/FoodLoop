@@ -4,6 +4,7 @@ import PageHeader from "@/components/dashboard/PageHeader";
 import RescueSummary from "@/components/rescue/RescueSummary";
 import { Button } from "@/components/ui/button";
 import { useFoodLoop } from "@/context/FoodLoopContext";
+import { pickupTeamLabel } from "@/lib/foodloop";
 
 export default function Rescue() {
   const {
@@ -14,17 +15,18 @@ export default function Rescue() {
     n8n,
     error
   } = useFoodLoop();
+  const teamNote = pickupTeamLabel(n8n);
 
   if (!activePlan) {
     return (
       <div className="grid gap-8">
         <PageHeader
-          eyebrow="Rescue execution"
-          title="No rescue plan yet."
-          description="Select a recipient on the Matching page to create a Backend rescue plan."
+          eyebrow="Rescue coordination"
+          title="No pickup scheduled"
+          description="Select a recipient in Partner matching to confirm a pickup for the current surplus batch."
           action={
             <Button asChild>
-              <Link to="/matching">Go to matching</Link>
+              <Link to="/matching">Open partner matching</Link>
             </Button>
           }
         />
@@ -51,14 +53,17 @@ export default function Rescue() {
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="Rescue execution"
-        title="Confirm pickup details before the cutoff window closes."
-        description={`Plan ${activePlan.id} · n8n: ${n8n.lastStatus}${n8n.lastMessage ? ` — ${n8n.lastMessage}` : ""}`}
+        eyebrow="Rescue coordination"
+        title="Confirm pickup details before cutoff"
+        description={
+          teamNote ||
+          "Review allocation and logistics with your selected partner before the availability window closes."
+        }
         action={
           <div className="flex flex-wrap gap-2">
             {activePlan.status === "planned" ? (
               <Button type="button" onClick={completeActiveRescue}>
-                Mark rescue complete
+                Mark pickup complete
               </Button>
             ) : null}
             <Button asChild variant="secondary">

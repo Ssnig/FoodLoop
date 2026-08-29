@@ -171,6 +171,18 @@ export function completeRescue(rescueId) {
     const meals = plan.donationQuantity;
     const discounted = plan.discountQuantity;
 
+    const donationValuePerMeal =
+      item && Number.isFinite(item.unitPrice) && item.unitPrice > 0
+        ? item.unitPrice
+        : METRICS.DONATION_VALUE_PER_MEAL;
+    const discountValuePerMeal =
+      item &&
+      Number.isFinite(item.discountPrice) &&
+      item.discountPrice >= 0 &&
+      (item.unitPrice == null || item.discountPrice < item.unitPrice)
+        ? item.discountPrice
+        : METRICS.DISCOUNT_VALUE_PER_MEAL;
+
     draft.impactMetrics.mealsRescued += meals;
     draft.impactMetrics.foodDivertedKg = round2(
       draft.impactMetrics.foodDivertedKg +
@@ -178,8 +190,8 @@ export function completeRescue(rescueId) {
     );
     draft.impactMetrics.valueRecovered = round2(
       draft.impactMetrics.valueRecovered +
-        meals * METRICS.DONATION_VALUE_PER_MEAL +
-        discounted * METRICS.DISCOUNT_VALUE_PER_MEAL,
+        meals * donationValuePerMeal +
+        discounted * discountValuePerMeal,
     );
   });
 

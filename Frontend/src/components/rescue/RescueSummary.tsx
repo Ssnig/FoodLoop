@@ -2,6 +2,7 @@ import { CheckCircle2, Clock, MapPin, PackageCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Recipient, RescuePlan, SurplusItem } from "@/types";
+import { rescueStatusLabel } from "@/lib/foodloop";
 
 interface RescueSummaryProps {
   plan: RescuePlan;
@@ -16,14 +17,12 @@ export default function RescueSummary({ plan, item, recipient }: RescueSummaryPr
         <div>
           <CardTitle>Confirmed rescue plan</CardTitle>
           <p className="mt-2 text-sm text-muted-foreground">
-            Created by Backend <code>createRescue</code>
             {plan.donationQuantity != null
-              ? ` · donate ${plan.donationQuantity}, discount ${plan.discountQuantity ?? 0}`
-              : ""}
-            .
+              ? `Allocate ${plan.donationQuantity} portions to donation and ${plan.discountQuantity ?? 0} portions to same-day discount.`
+              : "Pickup confirmed with the selected partner."}
           </p>
         </div>
-        <Badge variant="secondary">{plan.status}</Badge>
+        <Badge variant="secondary">{rescueStatusLabel(plan.status)}</Badge>
       </CardHeader>
       <CardContent className="grid gap-4">
         <div className="grid gap-4 rounded-3xl bg-secondary/70 p-5 md:grid-cols-2">

@@ -7,6 +7,7 @@ import SurplusCard from "@/components/surplus/SurplusCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useFoodLoop } from "@/context/FoodLoopContext";
+import { pickupTeamLabel } from "@/lib/foodloop";
 
 const metricIcons = [Utensils, Scale, WalletCards];
 
@@ -22,6 +23,7 @@ export default function Dashboard() {
     hasPendingSurplus
   } = useFoodLoop();
   const activeItem = selectedItem || items.find((item) => item.status === "pending") || null;
+  const teamNote = pickupTeamLabel(n8n);
 
   return (
     <div className="grid gap-8">
@@ -30,39 +32,39 @@ export default function Dashboard() {
           <div className="max-w-2xl">
             <p className="food-chip bg-white/15 text-white">
               <Clock3 className="h-3.5 w-3.5" />
-              {hasPendingSurplus ? "Rescue window open" : "Start with surplus"}
+              {hasPendingSurplus ? "Rescue window active" : "Begin with surplus intake"}
             </p>
             <h1 className="font-display mt-4 text-4xl font-semibold tracking-tight md:text-5xl">
-              {business?.name ? `${business.name}'s kitchen` : "Kitchen hub"}
+              {business?.name ? `${business.name} operations` : "Operations overview"}
             </h1>
             <p className="mt-3 text-base leading-7 text-white/85">
               {hasPendingSurplus
-                ? "Pending surplus is ready — open Find partners to match a recipient."
-                : "Create surplus on the board first. Matching stays locked until excess food is logged."}
+                ? "Pending surplus is ready for allocation. Proceed to partner matching before cutoff."
+                : "Register excess inventory from today’s service. Partner matching becomes available after the first batch is recorded."}
             </p>
           </div>
           <Button asChild className="bg-white text-primary hover:bg-white/90" size="lg">
             <Link to={hasPendingSurplus ? "/matching" : "/surplus"}>
-              {hasPendingSurplus ? "Find partners" : "Log surplus"}
+              {hasPendingSurplus ? "Open partner matching" : "Register surplus"}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
         </div>
         <div className="mt-6 flex flex-wrap gap-2">
-          <span className="food-chip">🥪 Prepared</span>
-          <span className="food-chip">🥖 Bakery</span>
-          <span className="food-chip">🥗 Produce</span>
-          <span className="food-chip">♻️ Divert from landfill</span>
+          <span className="food-chip">Prepared food</span>
+          <span className="food-chip">Bakery</span>
+          <span className="food-chip">Produce</span>
+          <span className="food-chip">Landfill diversion</span>
         </div>
       </section>
 
       <PageHeader
-        eyebrow={business?.name ? `${business.name} · owner workspace` : "FoodLoop command center"}
-        title="Today's surplus rescue board"
+        eyebrow={business?.name ? `${business.name} workspace` : "Operations"}
+        title="Surplus recovery overview"
         description={
           hasPendingSurplus
-            ? "Live metrics and the next batch ready for matching."
-            : "Log surplus food to unlock partner matching and start a rescue."
+            ? "Current impact metrics and the next batch available for matching."
+            : "Register surplus inventory to unlock partner matching and initiate a rescue."
         }
       />
 
@@ -72,18 +74,7 @@ export default function Dashboard() {
         </p>
       ) : null}
 
-      <p className="text-sm text-muted-foreground">
-        Coordinator:{" "}
-        <span className="font-bold text-foreground">
-          {n8n.lastStatus === "ok"
-            ? "notified"
-            : n8n.lastStatus === "pending"
-              ? "notifying…"
-              : n8n.lastStatus === "error"
-                ? n8n.lastMessage
-                : n8n.lastStatus}
-        </span>
-      </p>
+      {teamNote ? <p className="text-sm text-muted-foreground">{teamNote}</p> : null}
 
       <section className="grid gap-4 md:grid-cols-3">
         {impact.map((metric, index) => (
@@ -100,15 +91,15 @@ export default function Dashboard() {
         <Card className="border-dashed bg-secondary/35">
           <CardContent className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="font-display text-xl font-semibold">No pending surplus yet</p>
+              <p className="font-display text-xl font-semibold">No pending surplus</p>
               <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-                Use the Surplus board to create your first excess batch. The Find partners tab
-                appears only after that.
+                Use Surplus inventory to register your first excess batch. Partner matching
+                appears in navigation only after that step.
               </p>
             </div>
             <Button asChild>
               <Link to="/surplus">
-                Go to Surplus board
+                Go to Surplus inventory
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>

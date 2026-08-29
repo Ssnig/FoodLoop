@@ -10,6 +10,8 @@ declare module "@backend/services/index.js" {
     name: string;
     category?: string;
     quantity: number;
+    unitPrice?: number;
+    discountPrice?: number;
     availableUntil: string;
     location: string;
     status?: string;
@@ -78,6 +80,8 @@ declare module "@backend/services/index.js" {
     name: string;
     category: string;
     quantity: number;
+    unitPrice?: number;
+    discountPrice?: number;
     availableUntil: string;
     location: string;
     status: string;

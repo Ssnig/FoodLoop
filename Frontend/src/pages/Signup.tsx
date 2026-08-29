@@ -39,18 +39,18 @@ export default function Signup() {
             </div>
             <div>
               <p className="text-lg font-black tracking-tight">FoodLoop</p>
-              <p className="text-xs text-muted-foreground">Restaurant owner signup</p>
+              <p className="text-xs text-muted-foreground">Business registration</p>
             </div>
           </div>
-          <CardTitle>Create your restaurant account</CardTitle>
+          <CardTitle>Create a business account</CardTitle>
           <p className="text-sm text-muted-foreground">
-            After signup you land in your restaurant workspace to list surplus for nearby partners.
+            After registration you can list surplus inventory and match nearby community partners.
           </p>
         </CardHeader>
         <CardContent>
           <form className="grid gap-4" onSubmit={handleSubmit}>
             <label className="grid gap-2 text-sm font-semibold">
-              Your name
+              Full name
               <input
                 className="h-11 rounded-2xl border bg-background px-4 outline-none focus:ring-2 focus:ring-ring"
                 value={name}
@@ -59,7 +59,7 @@ export default function Signup() {
               />
             </label>
             <label className="grid gap-2 text-sm font-semibold">
-              Restaurant name
+              Business name
               <input
                 className="h-11 rounded-2xl border bg-background px-4 outline-none focus:ring-2 focus:ring-ring"
                 value={restaurantName}
@@ -100,7 +100,7 @@ export default function Signup() {
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
+            Already registered?{" "}
             <Link className="font-semibold text-primary hover:underline" to="/login">
               Sign in
             </Link>

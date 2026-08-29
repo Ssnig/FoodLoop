@@ -19,12 +19,12 @@ export default function Matching() {
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="Recipient matching"
-        title="Compare nearby partners by distance, capacity, and fit."
+        eyebrow="Partner matching"
+        title="Evaluate recipients by distance, capacity, and compatibility"
         description={
           selectedItem
-            ? `Matching for ${selectedItem.name} (${selectedItem.quantity} portions) via Backend findNearbyRecipients.`
-            : "Select a surplus item first."
+            ? `Candidate partners for ${selectedItem.name} (${selectedItem.quantity} portions) before cutoff.`
+            : "Select a surplus item to begin matching."
         }
         action={
           <Button type="button" variant="secondary" onClick={refreshRecipients}>
@@ -55,7 +55,7 @@ export default function Matching() {
         ))}
         {recipients.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No compatible recipients. Log surplus or refresh matches.
+            No compatible recipients found. Register surplus inventory or refresh matches.
           </p>
         ) : null}
       </section>

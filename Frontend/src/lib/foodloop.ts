@@ -29,10 +29,7 @@ import type {
 
 const SESSION_KEY = "foodloop.session";
 
-/**
- * Demo clock: stand 2 hours before the item cutoff so the MVP always
- * demonstrates high urgency (donate 15 / discount 5 for the seed item).
- */
+/** Anchor two hours before cutoff so recommendation urgency remains consistent for demo batches. */
 export function demoNowForItem(availableUntil: string): Date {
   const [hours, minutes] = availableUntil.split(":").map(Number);
   const cutoff = new Date();
@@ -41,15 +38,22 @@ export function demoNowForItem(availableUntil: string): Date {
 }
 
 export function toUiRecommendation(
-  rec: ReturnType<typeof recommendAction>
+  rec: ReturnType<typeof recommendAction>,
+  prices?: { unitPrice?: number; discountPrice?: number }
 ): Recommendation {
   return {
     action: rec.action,
     donationQuantity: rec.donateQuantity,
     discountQuantity: rec.discountQuantity,
     urgency: rec.urgency,
-    reason: rec.reasoning
+    reason: rec.reasoning,
+    unitPrice: prices?.unitPrice,
+    discountPrice: prices?.discountPrice
   };
+}
+
+export function formatMoney(amount: number): string {
+  return `$${amount.toFixed(2)}`;
 }
 
 export function toUiRecipient(
@@ -92,11 +96,29 @@ export function toUiRescuePlan(plan: ReturnType<typeof listRescuePlans>[number])
     completedAt: plan.completedAt,
     driverNote:
       plan.status === "completed"
-        ? "Rescue completed — impact metrics updated."
+        ? "Pickup completed. This batch is included in impact totals."
         : plan.status === "planned"
-          ? "Awaiting pickup confirmation. Coordinator notified via n8n when created."
-          : "Rescue plan status updated."
+          ? "Awaiting pickup. The partner organization has been notified."
+          : "Pickup details were updated."
   };
+}
+
+export function pickupTeamLabel(status: {
+  lastStatus: string;
+  lastMessage?: string | null;
+}): string | null {
+  if (status.lastStatus === "ok") return "Coordination team notified";
+  if (status.lastStatus === "pending") return "Notifying coordination team…";
+  if (status.lastStatus === "error") {
+    return "Pickup remains scheduled. The coordination webhook could not be reached.";
+  }
+  return null;
+}
+
+export function rescueStatusLabel(status: string): string {
+  if (status === "planned") return "Pickup scheduled";
+  if (status === "completed") return "Completed";
+  return status;
 }
 
 export function toImpactCards(
@@ -111,12 +133,12 @@ export function toImpactCards(
     {
       label: "Food diverted",
       value: `${metrics.foodDivertedKg} kg`,
-      helper: "Estimated landfill waste avoided"
+      helper: "Estimated waste diverted from landfill"
     },
     {
       label: "Value recovered",
       value: `$${metrics.valueRecovered.toFixed(0)}`,
-      helper: "Donation and discount value retained"
+      helper: "Combined donation and discount value retained"
     }
   ];
 }

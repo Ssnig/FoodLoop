@@ -3,24 +3,23 @@ import PageHeader from "@/components/dashboard/PageHeader";
 import MetricCard from "@/components/dashboard/MetricCard";
 import ImpactTimeline from "@/components/impact/ImpactTimeline";
 import { useFoodLoop } from "@/context/FoodLoopContext";
+import { pickupTeamLabel } from "@/lib/foodloop";
 
 const metricIcons = [Utensils, Scale, WalletCards];
 
 export default function Impact() {
   const { impact, plans, items, n8n } = useFoodLoop();
+  const teamNote = pickupTeamLabel(n8n);
 
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="Impact tracking"
-        title="Show the measurable outcome of every rescued batch."
-        description="Metrics come from Backend getImpactMetrics after rescue completion."
+        eyebrow="Impact reporting"
+        title="Measurable outcomes from completed rescues"
+        description="Meals delivered, waste diverted, and value recovered after each completed pickup."
       />
 
-      <p className="text-sm text-muted-foreground">
-        Coordinator status: <strong>{n8n.lastStatus}</strong>
-        {n8n.lastMessage ? ` — ${n8n.lastMessage}` : ""}
-      </p>
+      {teamNote ? <p className="text-sm text-muted-foreground">{teamNote}</p> : null}
 
       <section className="grid gap-4 md:grid-cols-3">
         {impact.map((metric, index) => (

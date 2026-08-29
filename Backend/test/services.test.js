@@ -171,7 +171,8 @@ describe('recommendationService', () => {
       },
     );
     assert.equal(typeof rec.reasoning, 'string');
-    assert.match(rec.reasoning, /not an ML prediction/i);
+    assert.match(rec.reasoning, /donate 15/i);
+    assert.match(rec.reasoning, /recover value on 5/i);
   });
 
   it('discounts the remainder when nearby capacity is insufficient', () => {
@@ -275,8 +276,34 @@ describe('completeRescue / impact', () => {
 
     assert.equal(impactMetrics.mealsRescued, 15);
     assert.equal(impactMetrics.foodDivertedKg, 9);
-    assert.ok(impactMetrics.valueRecovered > 0);
+    // Unpriced seed falls back to METRICS: 15 * 4.5 + 5 * 2.0
+    assert.equal(impactMetrics.valueRecovered, 77.5);
     assert.deepEqual(getImpactMetrics(), impactMetrics);
+  });
+
+  it('uses item unitPrice and discountPrice when present', () => {
+    resetStore();
+    resetN8nNotificationStatus();
+    const priced = addSurplusItem({
+      name: 'Chicken Sandwiches',
+      category: 'prepared-food',
+      quantity: 20,
+      unitPrice: 6,
+      discountPrice: 2.5,
+      availableUntil: '20:00',
+      location: 'ABC Bakery',
+      businessId: 'biz-001',
+    });
+    assert.equal(priced.unitPrice, 6);
+    assert.equal(priced.discountPrice, 2.5);
+
+    const plan = createRescue(priced.id, 'rec-001', 15);
+    const { impactMetrics } = completeRescue(plan.id);
+
+    assert.equal(impactMetrics.mealsRescued, 15);
+    assert.equal(impactMetrics.foodDivertedKg, 9);
+    // 15 * 6.00 + 5 * 2.50
+    assert.equal(impactMetrics.valueRecovered, 102.5);
   });
 });
 

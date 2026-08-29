@@ -105,9 +105,8 @@ export function recommendAction(foodItem, options = {}) {
       discountQuantity: 0,
       urgency,
       reasoning:
-        `Deterministic MVP decision (not an ML prediction). ` +
-        `Cutoff passed ${Math.abs(minutes)} min ago → recommend recycle ` +
-        `(do not donate or discount expired surplus).`,
+        `The cutoff for this batch passed ${Math.abs(minutes)} minutes ago. ` +
+        `Recycle leftover food instead of donating or discounting it.`,
     };
   }
 
@@ -162,28 +161,25 @@ function buildReasoning({
 }) {
   const timePart =
     minutes < 0
-      ? `Cutoff passed (${Math.abs(minutes)} min overdue) → ${urgency} urgency`
-      : `${minutes} minutes remaining → ${urgency} urgency`;
+      ? `Cutoff passed ${Math.abs(minutes)} minutes ago`
+      : `${minutes} minutes until cutoff — ${urgency} urgency`;
 
   if (nearbyCapacity <= 0) {
     return (
-      `Deterministic MVP decision (not an ML prediction). ${timePart}. ` +
-      `Surplus ${quantity} with no nearby donation capacity — ` +
-      `discount all ${discountQuantity} units.`
+      `${timePart}. No nearby partners have room right now, so mark all ` +
+      `${discountQuantity} portions for a same-day discount.`
     );
   }
 
   if (preferredDonate > nearbyCapacity) {
     return (
-      `Deterministic MVP decision (not an ML prediction). ${timePart}. ` +
-      `Preferred donation ${preferredDonate} exceeds nearby capacity ${nearbyCapacity}; ` +
-      `donate ${donateQuantity} and discount the remaining ${discountQuantity}.`
+      `${timePart}. Nearby partners can take ${nearbyCapacity} of ${quantity} portions. ` +
+      `Donate ${donateQuantity} and discount the remaining ${discountQuantity}.`
     );
   }
 
   return (
-    `Deterministic MVP decision (not an ML prediction). ${timePart}. ` +
-    `Surplus ${quantity}; nearby recipient capacity ${nearbyCapacity}. ` +
-    `Recommend donate ${donateQuantity}, discount ${discountQuantity} for revenue recovery.`
+    `${timePart}. Nearby partners can take ${nearbyCapacity} portions. ` +
+    `Donate ${donateQuantity} and recover value on ${discountQuantity} with a same-day discount.`
   );
 }

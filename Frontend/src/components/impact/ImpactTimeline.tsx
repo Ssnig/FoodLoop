@@ -12,28 +12,28 @@ export default function ImpactTimeline({
   const milestones =
     plans.length === 0
       ? [
-          "Log surplus on the Surplus page",
-          "Review recommendation and pick a recipient",
-          "Create rescue — item locks to confirmed rescue",
-          "Mark complete to update impact metrics"
+          "Register surplus inventory before cutoff",
+          "Review the recommended allocation and select a partner",
+          "Confirm pickup — the batch is then reserved",
+          "Complete the pickup to record impact metrics"
         ]
       : plans.flatMap((plan) => {
           const item = items.find((entry) => entry.id === plan.surplusItemId);
           const name = item?.name || plan.foodName || "Surplus batch";
           return [
-            `${name} linked to ${plan.recipientName || "recipient"} (${plan.status})`,
+            `${name} assigned to ${plan.recipientName || "a community partner"}`,
             plan.status === "completed"
-              ? `Rescue ${plan.id} completed — impact counted`
-              : `Rescue ${plan.id} planned — awaiting completion`
+              ? "Pickup completed — this rescue is included in impact totals"
+              : "Pickup scheduled — awaiting partner collection"
           ];
         });
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Impact trail</CardTitle>
+        <CardTitle>Activity history</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Live trail from Backend rescue plans.
+          Progress of surplus batches from registration through partner delivery.
         </p>
       </CardHeader>
       <CardContent className="grid gap-4">

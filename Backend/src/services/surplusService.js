@@ -6,6 +6,8 @@ import { getState, updateState } from '../data/store.js';
  * @property {string} name
  * @property {string} category
  * @property {number} quantity
+ * @property {number} [unitPrice]
+ * @property {number} [discountPrice]
  * @property {string} availableUntil
  * @property {string} location
  * @property {string} status
@@ -53,6 +55,7 @@ export function resolveFoodItem(foodItem) {
 
 /**
  * Intake a new surplus item (demo helper for the dashboard form).
+ * Prices are optional so older seed/test items without them still work.
  * @param {Omit<SurplusItem, 'id'|'status'> & { status?: string }} input
  * @returns {SurplusItem}
  */
@@ -64,11 +67,28 @@ export function addSurplusItem(input) {
     throw new Error('quantity must be a positive integer.');
   }
 
+  const hasUnitPrice = input.unitPrice !== undefined && input.unitPrice !== null;
+  const hasDiscountPrice = input.discountPrice !== undefined && input.discountPrice !== null;
+
+  let unitPrice;
+  let discountPrice;
+  if (hasUnitPrice || hasDiscountPrice) {
+    unitPrice = Number(input.unitPrice);
+    discountPrice = Number(input.discountPrice);
+    if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
+      throw new Error('unitPrice must be a number greater than zero.');
+    }
+    if (!Number.isFinite(discountPrice) || discountPrice < 0 || discountPrice >= unitPrice) {
+      throw new Error('discountPrice must be >= 0 and lower than unitPrice.');
+    }
+  }
+
   let createdId = '';
   updateState((draft) => {
     const nextNum = draft.surplusItems.length + 1;
     createdId = `food-${String(nextNum).padStart(3, '0')}`;
-    draft.surplusItems.push({
+    /** @type {SurplusItem} */
+    const item = {
       id: createdId,
       name: input.name.trim(),
       category: input.category || 'prepared-food',
@@ -77,7 +97,12 @@ export function addSurplusItem(input) {
       location: input.location.trim(),
       status: input.status || 'pending',
       businessId: input.businessId || draft.business.id,
-    });
+    };
+    if (unitPrice !== undefined) {
+      item.unitPrice = unitPrice;
+      item.discountPrice = discountPrice;
+    }
+    draft.surplusItems.push(item);
   });
 
   return getSurplusItemById(createdId);

@@ -60,6 +60,8 @@ interface FoodLoopContextValue {
     name: string;
     category: string;
     quantity: number;
+    unitPrice: number;
+    discountPrice: number;
     availableUntil: string;
     location: string;
   }) => void;
@@ -104,9 +106,7 @@ export function FoodLoopProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const controller = new AbortController();
-    registerFoodLoopTools({ signal: controller.signal }).then((result) => {
-      console.log("[FoodLoop] WebMCP registration:", result);
-    });
+    registerFoodLoopTools({ signal: controller.signal });
     return () => controller.abort();
   }, []);
 
@@ -184,7 +184,7 @@ export function FoodLoopProvider({ children }: { children: ReactNode }) {
       const rec = recommendAction(selectedItem, {
         now: demoNowForItem(selectedItem.availableUntil)
       });
-      setRecommendation(toUiRecommendation(rec));
+      setRecommendation(toUiRecommendation(rec, selectedItem));
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -198,7 +198,7 @@ export function FoodLoopProvider({ children }: { children: ReactNode }) {
         const rec = recommendAction(selectedItem, {
           now: demoNowForItem(selectedItem.availableUntil)
         });
-        setRecommendation(toUiRecommendation(rec));
+        setRecommendation(toUiRecommendation(rec, selectedItem));
       }
       setRecipients(findNearbyRecipients(selectedItem).map(toUiRecipient));
     } catch (err) {
@@ -216,7 +216,7 @@ export function FoodLoopProvider({ children }: { children: ReactNode }) {
       const rec = recommendAction(selectedItem, {
         now: demoNowForItem(selectedItem.availableUntil)
       });
-      setRecommendation(toUiRecommendation(rec));
+      setRecommendation(toUiRecommendation(rec, selectedItem));
       setRecipients(findNearbyRecipients(selectedItem).map(toUiRecipient));
       setError(null);
     } catch (err) {
@@ -229,6 +229,8 @@ export function FoodLoopProvider({ children }: { children: ReactNode }) {
       name: string;
       category: string;
       quantity: number;
+      unitPrice: number;
+      discountPrice: number;
       availableUntil: string;
       location: string;
     }) => {
@@ -242,6 +244,8 @@ export function FoodLoopProvider({ children }: { children: ReactNode }) {
           name: input.name,
           category: categoryToBackend(input.category),
           quantity: input.quantity,
+          unitPrice: input.unitPrice,
+          discountPrice: input.discountPrice,
           availableUntil: input.availableUntil,
           location: input.location || business.location || business.name,
           businessId: business.id

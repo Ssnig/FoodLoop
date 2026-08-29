@@ -14,6 +14,10 @@ export interface SurplusItem {
   name: string;
   category: string;
   quantity: number;
+  /** Original price per portion (optional on older seed items). */
+  unitPrice?: number;
+  /** Same-day sale price per portion (optional on older seed items). */
+  discountPrice?: number;
   availableUntil: string;
   location: string;
   status: SurplusStatus;
@@ -54,6 +58,8 @@ export interface Recommendation {
   discountQuantity: number;
   urgency: "critical" | "high" | "medium" | "low" | string;
   reason: string;
+  unitPrice?: number;
+  discountPrice?: number;
 }
 
 export interface RescuePlan {

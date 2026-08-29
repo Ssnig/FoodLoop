@@ -1,38 +1,37 @@
-# How to run FoodLoop
+# Running FoodLoop
 
 ## Prerequisites
 
-- Node.js 18+ (npm included)
-- n8n already running locally (this project does **not** start n8n)
-- Repo root `.env` present (webhook URL / keys — do not commit)
+- Node.js 18 or later (npm included)
+- Optional: an active n8n workflow for rescue notifications (the app runs without it)
+- Repository root `.env` present when using webhook notifications (do not commit secrets)
 
 ## Quick start (Windows)
 
-From the repo root:
+From the repository root:
 
 ```bat
 run.cmd
 ```
 
-What it does:
+This will:
 
-1. Installs `Frontend` deps if `node_modules` is missing
-2. Starts the Vite React app on port **5173**
-3. Skips n8n (assumes you already started it)
+1. Install Frontend dependencies if `node_modules` is missing
+2. Start the Vite React application on port **5173**
 
-Open: **http://localhost:5173** — you will land on **Login**.
+Open: **http://localhost:5173**
 
-### Demo login (default restaurant owner)
+### Sign-in credentials
 
 | Field | Value |
 |-------|--------|
 | Email | `owner@abcbakery.com` |
 | Password | `demo1234` |
-| Restaurant | ABC Bakery |
+| Business | ABC Bakery |
 
-Or use **Create an account** on `/signup` for a new restaurant workspace.
+Or create a new business account from **Sign up**.
 
-Stop: close the terminal window running Vite.
+Stop the app by closing the terminal window running Vite.
 
 ---
 
@@ -44,9 +43,7 @@ npm install
 npm run dev
 ```
 
-Port **5173** is set in `Frontend/vite.config.ts` (do not pass `--port` through npm — newer npm can break it into `vite 5173`).
-
-Same URL: **http://localhost:5173**
+Port **5173** is set in `Frontend/vite.config.ts`. Do not pass `--port` through npm; newer npm versions can break that into an invalid `vite 5173` command.
 
 Optional production check:
 
@@ -58,9 +55,9 @@ npm run preview
 
 ---
 
-## Backend (no server)
+## Backend
 
-Backend is in-memory JS imported by the Frontend. There is nothing to “start” for the API.
+Backend logic is in-memory JavaScript imported by the Frontend. There is no separate API server to start.
 
 Useful checks:
 
@@ -72,59 +69,26 @@ npm run demo
 
 ---
 
-## n8n (cloud)
+## Optional n8n notifications
 
-Primary instance: **https://kyawsanhtun.app.n8n.cloud**
-
-Required for rescue notifications:
-
-1. Workflow **FoodLoop - Rescue Coordinator** is **Published/Active**
-2. Webhook path: `/webhook/foodloop-rescue-created`
-3. Full production URL used by Backend:
-
-   `https://kyawsanhtun.app.n8n.cloud/webhook/foodloop-rescue-created`
-
-Frontend proxies browser calls:
-
-- Vite path: `/api/n8n/webhook/foodloop-rescue-created`
-- Proxies to: `https://kyawsanhtun.app.n8n.cloud/webhook/foodloop-rescue-created`
-
-Config sources:
-
-| File | Purpose |
-|------|---------|
-| `.env` (repo root) | `N8N_RESCUE_WEBHOOK_URL`, optional local `N8N_API_KEY` |
-| `Frontend/.env` | `VITE_N8N_RESCUE_WEBHOOK_URL=/api/n8n/webhook/foodloop-rescue-created` |
-
-Workflow editor: https://kyawsanhtun.app.n8n.cloud/workflow/tmaRn25UogtLWYrW
+If configured, completing a rescue can notify an n8n webhook. See environment variables in the repository `.env` and `Frontend/.env`. The UI remains fully usable when the webhook is unavailable.
 
 ---
 
-## Ports cheat sheet
+## Suggested walkthrough
 
-| Service | URL |
-|---------|-----|
-| Frontend (Vite) | http://localhost:5173 |
-| n8n (cloud) | https://kyawsanhtun.app.n8n.cloud |
-| Rescue webhook | https://kyawsanhtun.app.n8n.cloud/webhook/foodloop-rescue-created |
-
----
-
-## Demo click path
-
-1. Open http://localhost:5173 → **Login** with `owner@abcbakery.com` / `demo1234`
-2. **Surplus** — use seed Chicken Sandwiches or log a new item for ABC Bakery
-3. **Matching** — expect donate **15** / discount **5**; pick Community Food Center
-4. **Rescue** — mark complete
-5. **Impact** — meals / kg / value update; n8n badge may show coordinator notified
+1. Open http://localhost:5173 and sign in
+2. **Surplus inventory** — submit a batch with original and sale prices
+3. **Partner matching** — review the donation / discount split and select a partner
+4. **Rescue** — confirm pickup, then mark complete
+5. **Impact** — verify meals, diverted weight, and recovered value
 
 ---
 
 ## Troubleshooting
 
-| Problem | Fix |
-|---------|-----|
-| Port 5173 in use | Stop the other Vite process, or change port in `run.cmd` |
-| Blank / import errors | `cd Frontend && npm install` then restart |
-| n8n not notified | Confirm workflow Active + webhook URL; check browser Network for `/api/n8n/...` |
-| WebMCP skip in console | Normal if Chrome WebMCP is unavailable — UI still works |
+| Issue | Resolution |
+|-------|------------|
+| Port 5173 in use | Stop the other Vite process, or change the port in `Frontend/vite.config.ts` |
+| Blank page / import errors | Run `cd Frontend && npm install`, then restart |
+| Rescue notification missing | Confirm webhook URL and workflow status if you rely on n8n |

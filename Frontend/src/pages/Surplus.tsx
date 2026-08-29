@@ -15,12 +15,12 @@ export default function Surplus() {
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="Surplus board"
-        title="What's leaving the kitchen today?"
-        description="Log prepared food, bakery, or produce before cutoff. Partner matching unlocks after you create your first pending batch."
+        eyebrow="Surplus inventory"
+        title="Register excess inventory before cutoff"
+        description="Record prepared food, bakery, or produce with pricing. Partner matching becomes available after the first pending batch is submitted."
         action={
           <Button type="button" variant="outline" onClick={resetDemo}>
-            Reset demo data
+            Reset inventory
           </Button>
         }
       />
@@ -37,10 +37,10 @@ export default function Surplus() {
           {items.length === 0 ? (
             <Card className="border-dashed bg-secondary/40">
               <CardContent className="grid gap-3 p-6">
-                <p className="font-display text-xl font-semibold">No surplus logged yet</p>
+                <p className="font-display text-xl font-semibold">No surplus recorded</p>
                 <p className="text-sm leading-6 text-muted-foreground">
-                  Log your first surplus batch to unlock <strong>Find partners</strong> in the
-                  sidebar. Matching stays hidden until excess food is on the board.
+                  Submit your first surplus batch to unlock <strong>Partner matching</strong> in
+                  the navigation. Matching remains unavailable until inventory is on file.
                 </p>
               </CardContent>
             </Card>

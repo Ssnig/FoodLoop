@@ -16,11 +16,11 @@ import { useFoodLoop } from "@/context/FoodLoopContext";
 import { cn } from "@/lib/utils";
 
 const baseNavItems = [
-  { to: "/dashboard", label: "Kitchen hub", icon: Home, id: "dashboard" },
-  { to: "/surplus", label: "Surplus board", icon: ClipboardList, id: "surplus" },
-  { to: "/matching", label: "Find partners", icon: MapPinned, id: "matching" },
-  { to: "/rescue", label: "Rescue run", icon: PackageCheck, id: "rescue" },
-  { to: "/impact", label: "Impact plate", icon: BarChart3, id: "impact" }
+  { to: "/dashboard", label: "Operations", icon: Home, id: "dashboard" },
+  { to: "/surplus", label: "Surplus inventory", icon: ClipboardList, id: "surplus" },
+  { to: "/matching", label: "Partner matching", icon: MapPinned, id: "matching" },
+  { to: "/rescue", label: "Rescue", icon: PackageCheck, id: "rescue" },
+  { to: "/impact", label: "Impact", icon: BarChart3, id: "impact" }
 ] as const;
 
 function Brand({ restaurantName }: { restaurantName?: string }) {
@@ -32,7 +32,7 @@ function Brand({ restaurantName }: { restaurantName?: string }) {
       <div>
         <p className="font-display text-xl font-semibold tracking-tight">FoodLoop</p>
         <p className="text-xs font-semibold text-muted-foreground">
-          {restaurantName || "Fresh surplus rescue"}
+          {restaurantName || "Surplus recovery platform"}
         </p>
       </div>
     </div>
@@ -83,8 +83,8 @@ function OwnerCard() {
 
   return (
     <div className="mt-auto rounded-[1.35rem] border border-primary/10 bg-gradient-to-br from-secondary to-white p-4">
-      <p className="food-chip mb-3">Kitchen open</p>
-      <p className="font-display text-lg font-semibold">{business?.name || "Your restaurant"}</p>
+      <p className="food-chip mb-3">Workspace active</p>
+      <p className="font-display text-lg font-semibold">{business?.name || "Your business"}</p>
       <p className="mt-1 text-sm text-muted-foreground">
         {user?.name} · {user?.email}
       </p>

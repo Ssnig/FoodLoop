@@ -9,7 +9,7 @@ export default function RequirePendingSurplus({ children }: { children: ReactNod
   if (!authReady) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
-        Loading kitchen…
+        Loading workspace…
       </div>
     );
   }

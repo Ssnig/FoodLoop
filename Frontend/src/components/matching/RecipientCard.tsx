@@ -22,7 +22,7 @@ export default function RecipientCard({
             <h3 className="text-xl font-bold">{recipient.name}</h3>
             {featured ? (
               <span className="rounded-full bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground">
-                Top match
+                Recommended
               </span>
             ) : null}
           </div>
@@ -55,7 +55,7 @@ export default function RecipientCard({
             variant={featured ? "default" : "secondary"}
             onClick={onSelect}
           >
-            Select recipient
+            Select partner
           </Button>
         </div>
       </CardContent>
